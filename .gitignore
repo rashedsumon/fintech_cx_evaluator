@@ -1,0 +1,22 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environments & Secrets
+.env
+.streamlit/secrets.toml
+secrets.py
+*.pem
+
+# Model Checkpoints & Data
+/checkpoints/
+/trained_model/
+/chroma_db/
+*.csv
+*.json
+
+# Operating System Files
+.DS_Store
+Thumbs.db
