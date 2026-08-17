@@ -7,11 +7,22 @@ st.set_page_config(
     layout="wide"
 )
 
-# Safely extract OpenAI key from Streamlit Secrets or Environment (Without hardcoding secrets files)
 def get_api_key() -> str:
-    if "OPENAI_API_KEY" in st.secrets:
-        return st.secrets["OPENAI_API_KEY"]
-    return os.environ.get("OPENAI_API_KEY", "")
+    """Safely retrieves the OpenAI API key across local, Cloud Run, and Streamlit Cloud environments."""
+    # 1. Check system environment variables (Docker / Cloud Run)
+    env_key = os.environ.get("OPENAI_API_KEY", "")
+    if env_key:
+        return env_key
+    
+    # 2. Safely check Streamlit secrets without throwing StreamlitSecretNotFoundError
+    try:
+        if "OPENAI_API_KEY" in st.secrets:
+            return st.secrets["OPENAI_API_KEY"]
+    except Exception:
+        # File secrets.toml does not exist in container environments
+        pass
+        
+    return ""
 
 openai_api_key = get_api_key()
 
@@ -22,7 +33,7 @@ with st.sidebar:
     st.header("Authentication & Config")
     if not openai_api_key:
         openai_api_key = st.text_input("Enter OpenAI API Key:", type="password")
-        st.caption("Provide key here or configure via Streamlit Secrets.")
+        st.caption("Provide key here or configure via Streamlit Secrets / Environment Variables.")
     else:
         st.success("OpenAI API Key detected via Environment/Secrets.")
     
